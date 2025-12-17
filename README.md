@@ -12,7 +12,7 @@
 - [feat]: 기능 추가
 - [fix]: 버그 수정
 - [docs]: 문서 수정
-- [refactor]: 리팩토링
-- [test]: 테스트
-- [chore]: 설정/의존성/기타
+- [refactor]: 리팩토링 수정
+- [test]: 테스트 결과
+- [chore]: 설정/의존성/기타 등
 - [perf]: 성능 개선

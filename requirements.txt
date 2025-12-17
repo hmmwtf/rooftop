@@ -1,8 +1,10 @@
-streamlit
-pandas
-python-dotenv
-requests
-matplotlib
+streamlit>=1.37.0
+pydantic>=2.7.0
+requests>=2.31.0
+pandas>=2.2.0
+numpy>=1.26.0
+openpyxl>=3.1.2
+reportlab>=4.0.0
+python-dotenv>=1.0.1
 plotly
-pytest
-coverage
+matplotlib

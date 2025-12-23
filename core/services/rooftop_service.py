@@ -11,6 +11,7 @@ class RooftopService:
     def estimate_area(self, candidates, lat: float | None = None, lon: float | None = None) -> RooftopAreaEstimate:
         """Estimate rooftop area from candidates or fallback to None."""
         suggested = None
+        floor_area_m2 = None
         confidence = "low"
         note = "면적 데이터가 없으면 사용자가 직접 입력하도록 유도합니다."
 

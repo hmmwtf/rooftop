@@ -21,17 +21,15 @@ estimate = svc.estimate_rooftop_area(loc)
 
 suggested_area = estimate.roof_area_m2_suggested
 
+floor_area = estimate.floor_area_m2
+availability_ratio = estimate.availability_ratio
+
 confirmed_area = state.get("roof_area_m2_confirmed")
-default_area = confirmed_area if confirmed_area is not None else (suggested_area or 0.0)
+default_area = confirmed_area if confirmed_area is not None else 0.0
 
 address_title = loc.get("input_address") or "선택한 주소"
 address_caption = loc.get("normalized_address") or address_title
 
-floor_area = None
-availability_ratio = None
-
-if floor_area and suggested_area:
-    availability_ratio = (suggested_area / floor_area) * 100
 
 ui_state = render_area_confirm_ui(
     address_title=address_title,
@@ -61,8 +59,7 @@ if ui_state["prev_clicked"]:
 
 if ui_state["next_clicked"]:
     if not get_state().get("roof_area_m2_confirmed") and suggested_area:
-        svc.confirm_area(float(suggested_area))
-        set_state("roof_area_m2_confirmed", float(suggested_area))
+         st.info("추천 면적을 적용하려면 '값 적용'을 눌러주세요.")
     if not get_state().get("roof_area_m2_confirmed"):
         st.error("다음 단계로 이동하려면 면적을 입력해주세요.")
     else:

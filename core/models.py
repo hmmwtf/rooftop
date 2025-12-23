@@ -27,6 +27,8 @@ class BuildingCandidate(BaseModel):
 
 class RooftopAreaEstimate(BaseModel):
     roof_area_m2_suggested: Optional[float] = None
+    floor_area_m2: Optional[float] = None
+    availability_ratio: Optional[float] = None
     confidence: Literal["low", "medium", "high"] = "low"
     note: Optional[str] = None
     candidates: list[BuildingCandidate] = Field(default_factory=list)

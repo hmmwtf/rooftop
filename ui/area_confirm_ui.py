@@ -345,6 +345,7 @@ def render_area_confirm_ui(
             roof_area_value = st.text_input(
                 "",
                 value=f"{default_area:.0f}" if default_area else "",
+                placeholder=f"{suggested_area:.0f}" if suggested_area else "",
                 key="roof_area_input",
                 label_visibility="collapsed",
             )

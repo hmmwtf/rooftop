@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import base64
+#import base64
 import html
 
 import streamlit as st
@@ -31,9 +31,9 @@ def _escape(text: str) -> str:
     return html.escape(text or "")
 
 
-def _build_data_href(data: bytes, mime: str) -> str:
-    encoded = base64.b64encode(data).decode("utf-8")
-    return f"data:{mime};base64,{encoded}"
+# def _build_data_href(data: bytes, mime: str) -> str:
+#     encoded = base64.b64encode(data).decode("utf-8")
+#     return f"data:{mime};base64,{encoded}"
 
 
 def render_report_ui(
@@ -58,10 +58,10 @@ def render_report_ui(
     tree_display = _format_number(tree_equivalent_count, decimals=0)
     greening_label = GREENING_LABELS.get(greening_type_code, greening_type_code)
 
-    pdf_href = _build_data_href(pdf_bytes, "application/pdf")
-    excel_href = _build_data_href(
-        excel_bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+    # pdf_href = _build_data_href(pdf_bytes, "application/pdf")
+    # excel_href = _build_data_href(
+    #     excel_bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    # )
 
     st.html(
         """
@@ -126,6 +126,29 @@ button,input{font:inherit}
 .download-btn:hover{transform:translateY(-2px)}
 .download-btn.pdf{background:linear-gradient(135deg,#e53e3e,#c53030)}
 .download-btn.excel{background:linear-gradient(135deg,#48bb78,#2f855a)}
+
+.download-grid .download-btn-wrap .stDownloadButton>button{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  align-items:center;
+  justify-content:center;
+  padding:16px 12px;
+  border-radius:14px;
+  border:none;
+  font-weight:700;
+  color:#fff;
+  cursor:pointer;
+  transition:transform .1s ease;
+  white-space:pre-line;
+  text-align:center;
+  box-shadow:none;
+}
+.download-grid .download-btn-wrap .stDownloadButton>button:hover{transform:translateY(-2px)}
+.download-grid .download-btn-wrap.pdf .stDownloadButton>button{background:linear-gradient(135deg,#e53e3e,#c53030)}
+.download-grid .download-btn-wrap.excel .stDownloadButton>button{background:linear-gradient(135deg,#48bb78,#2f855a)}
+
 .download-icon{font-size:22px}
 .download-text{font-size:13px}
 .download-desc{font-size:10px;opacity:.85;font-weight:600}
@@ -277,22 +300,48 @@ button,input{font:inherit}
 
     st.html('<div class="card">')
     st.html('<div class="card-title">📥 리포트 다운로드</div>')
-    st.html(
-        f"""
-<div class="download-grid">
-  <a class="download-btn pdf" href="{pdf_href}" download="{_escape(pdf_filename)}">
-    <span class="download-icon">📄</span>
-    <span class="download-text">PDF 리포트</span>
-    <span class="download-desc">정책 제안용</span>
-  </a>
-  <a class="download-btn excel" href="{excel_href}" download="{_escape(excel_filename)}">
-    <span class="download-icon">📊</span>
-    <span class="download-text">Excel 데이터</span>
-    <span class="download-desc">상세 데이터</span>
-  </a>
-</div>
-"""
-    )
+#     st.html(
+#         f"""
+# <div class="download-grid">
+#   <a class="download-btn pdf" href="{pdf_href}" download="{_escape(pdf_filename)}">
+#     <span class="download-icon">📄</span>
+#     <span class="download-text">PDF 리포트</span>
+#     <span class="download-desc">정책 제안용</span>
+#   </a>
+#   <a class="download-btn excel" href="{excel_href}" download="{_escape(excel_filename)}">
+#     <span class="download-icon">📊</span>
+#     <span class="download-text">Excel 데이터</span>
+#     <span class="download-desc">상세 데이터</span>
+#   </a>
+# </div>
+# """
+#     )
+
+    st.html('<div class="download-grid">')
+    pdf_col, excel_col = st.columns(2, gap="small")
+    with pdf_col:
+        st.html('<div class="download-btn-wrap pdf">')
+        st.download_button(
+            label="📄 PDF 리포트\n정책 제안용",
+            data=pdf_bytes,
+            file_name=pdf_filename,
+            mime="application/pdf",
+            key="report_download_pdf",
+            use_container_width=True,
+        )
+        st.html("</div>")
+    with excel_col:
+        st.html('<div class="download-btn-wrap excel">')
+        st.download_button(
+            label="📊 Excel 데이터\n상세 데이터",
+            data=excel_bytes,
+            file_name=excel_filename,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            key="report_download_excel",
+            use_container_width=True,
+        )
+        st.html("</div>")
+    st.html("</div>")
 
     st.html('<div class="share-grid">')
     share_image_col, share_link_col = st.columns(2, gap="small")

@@ -53,6 +53,14 @@ def _extract_polygons(geometry: dict) -> list[list[tuple[float, float]]]:
     return polygons
 
 
+def _log_error(msg: str):
+    print(msg)
+    try:
+        import streamlit as st
+        st.error(msg)
+    except ImportError:
+        pass
+
 def _fetch_polygon_once(
     *,
     lat: float,
@@ -80,28 +88,30 @@ def _fetch_polygon_once(
     if domain:
         params["domain"] = domain
 
-    resp = requests.get(VWORLD_WFS_URL, params=params, timeout=timeout_s)
+    # requests.get raises generic RequestException on network fail
+    # status_code check handles 4xx/5xx if no raise
+    try:
+        resp = requests.get(VWORLD_WFS_URL, params=params, timeout=timeout_s)
+    except requests.RequestException as e:
+        # Network level error
+        _log_error(f"[VWORLD WFS] Request Error: {str(e)}")
+        # Raise so caller knows to retry or fail? 
+        # Caller loop catches RequestException. We should re-raise.
+        raise
+
     ctype = resp.headers.get("Content-Type", "")
 
     # HTTP 에러
     if resp.status_code != 200:
-        # 필요하면 print 대신 logging으로 교체 추천
-        print("[VWORLD WFS] HTTP", resp.status_code, "| URL:", resp.url)
-        print("[VWORLD WFS] CT:", ctype)
-        print("[VWORLD WFS] BODY:", resp.text[:500])
+        _log_error(f"[VWORLD WFS] HTTP {resp.status_code} | URL: {resp.url}\nBODY: {resp.text[:500]}")
         return None
 
     # JSON이 아닌 경우(XML ServiceExceptionReport 등)
     if "json" not in ctype.lower():
         if "<ServiceException" in resp.text or "<ServiceExceptionReport" in resp.text:
-            print("[VWORLD WFS] ServiceExceptionReport returned")
-            print("[VWORLD WFS] URL:", resp.url)
-            print("[VWORLD WFS] CT:", ctype)
-            print("[VWORLD WFS] BODY:", resp.text[:500])
+            _log_error(f"[VWORLD WFS] API ServiceException: {resp.text[:500]}")
             return None
-        print("[VWORLD WFS] Non-JSON response | URL:", resp.url)
-        print("[VWORLD WFS] CT:", ctype)
-        print("[VWORLD WFS] BODY:", resp.text[:500])
+        _log_error(f"[VWORLD WFS] Non-JSON response (CT: {ctype})\nBODY: {resp.text[:500]}")
         return None
 
     data = resp.json()
@@ -165,7 +175,7 @@ def get_building_polygon(
             if poly:
                 return poly
         except requests.RequestException as e:
-            print("[VWORLD WFS] RequestException:", str(e))
+            _log_error(f"[VWORLD WFS] Connection/Request Error (Attempt {attempt+1}/{max_attempts}): {str(e)}")
 
         # backoff
         time.sleep(0.2 * (2**attempt))

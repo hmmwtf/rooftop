@@ -124,8 +124,17 @@ class RooftopService:
         polygon = None
         if lat is not None and lon is not None and settings.vworld_api_key:
             try:
-                polygon = get_building_polygon((lat, lon), api_key=settings.vworld_api_key)
-            except Exception:
+                polygon = get_building_polygon(
+                    (lat, lon), 
+                    api_key=settings.vworld_api_key,
+                    domain=settings.vworld_domain
+                )
+            except Exception as e:
+                try:
+                    import streamlit as st
+                    st.error(f"VWorld Error: {e}")
+                except ImportError:
+                    pass
                 polygon = None
 
             if polygon:

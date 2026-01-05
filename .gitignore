@@ -21,3 +21,6 @@ data/raw/*
 
 # Notebooks
 .ipynb_checkpoints
+
+# Debug/Verification
+verify_fix.py
